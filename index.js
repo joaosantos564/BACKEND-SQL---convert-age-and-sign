@@ -11,6 +11,8 @@ const pool = new Pool({
     port: 5432,
 });
 
+app.use(express.json());
+
 const calculateAge = (date) => {
   const today = new Date();
   const birthDate = new Date(date);
@@ -67,16 +69,6 @@ const picksign = (date) => {
 
 
 
-app.use(express.json());
-
-app.listen(PORT, () => {
-  console.log(`Server ON FML ✨ ${PORT}`);
-});
-
-app.get('/', (req, res) => {
-  res.send();
-});
-
 app.get('/usuarios', async (req, res) => {
   try {
       const result = await pool.query('SELECT * FROM usuarios');
@@ -84,17 +76,18 @@ app.get('/usuarios', async (req, res) => {
       if (result.rowCount == 0) {
           res.json({
               status: 'success',
-              message: 'Nenhum usuario encontrado',
-              total: 0,
+              message: 'Não há usuários cadastrados',
           });
-      }
-
-      res.json({
+      } else {
+        res.json({
           status: 'success',
-          message: 'Usuarios retornados com sucesso',
+          message: 'Usuarios encontrados',
           total: result.rowCount,
           dados: result.rows,
       })
+      }
+
+      
   } catch (error) {
       console.error('Erro ao buscar usuarios', error);
       res.status(500).send('Erro ao buscar usuarios');
@@ -170,4 +163,12 @@ app.delete('/usuarios/:id', async (req, res) => {
       console.error('Erro ao deletar usuario', error);
       res.status(500).send('Erro ao deletar usuario');
   }
+});
+
+app.listen(PORT, () => {
+  console.log(`Server ON FML ✨ ${PORT}`);
+});
+
+app.get('/', (req, res) => {
+  res.send();
 });
